@@ -93,5 +93,5 @@ function deleteCombo(id) {
     renderCombinations();
 }
 
-// Initial render on page load
+
 renderCombinations();
