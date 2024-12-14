@@ -44,12 +44,22 @@
                         <th class="border border-gray-300 px-4 py-2">Price</th>
                         <th class="border border-gray-300 px-4 py-2">Discounted Price</th>
                         <th class="border border-gray-300 px-4 py-2">Actions</th>
-                       
                     </tr>
                 </thead>
                 <tbody id="combinationsTable" class="text-gray-700 text-center"></tbody>
             </table>
         </div>
     </div>
+
+    <script>
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#combinationsTable tr');
+            rows.forEach(row => {
+                const combinationText = row.textContent.toLowerCase();
+                row.style.display = combinationText.includes(searchValue) ? '' : 'none';
+            });
+        });
+    </script>
 </body>
 </html>
