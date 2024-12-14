@@ -30,6 +30,7 @@ document.getElementById("productCategory").addEventListener("change", (e) => {
                     <label class="block text-gray-600 font-medium mb-1">Product Name</label>
                     <input id="productName" type="text" required class="border border-gray-300 p-3 rounded-lg w-full shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" placeholder="Enter product name" />
                 </div>
+             
             `;
             break;
 
@@ -39,6 +40,7 @@ document.getElementById("productCategory").addEventListener("change", (e) => {
                     <label class="block text-gray-600 font-medium mb-1">Product Name</label>
                     <input id="productName" type="text" required class="border border-gray-300 p-3 rounded-lg w-full shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" placeholder="Enter product name" />
                 </div>
+            
             `;
             break;
 
@@ -87,7 +89,7 @@ document.getElementById("generateButton").addEventListener("click", () => {
         const colors = ["Yellow", "Red", "White", "Blue", "Green"];
         for (const dose of doses) {
             for (const color of colors) {
-                addCombination(productCategory, { productName, dose, color });
+                addCombination(productCategory, { productName, dose, });
             }
         }
     }
@@ -118,9 +120,8 @@ function updateTable() {
                 <td class="border border-gray-300 px-4 py-2">${combo.color || ""}</td>
                 <td class="border border-gray-300 px-4 py-2"><input type="number" min="0" value="${combo.stock}" data-index="${index}" class="stockInput border border-gray-300 p-1 w-full"></td>
                 <td class="border border-gray-300 px-4 py-2"><input type="number" min="0" value="${combo.price}" data-index="${index}" class="priceInput border border-gray-300 p-1 w-full"></td>
-                <td class="border border-gray-300 px-4 py-2">${combo.discountedPrice}</td>
-                <td class="border border-gray-300 px-4 py-2">
-                    <button data-index="${index}" class="deleteButton text-red-500">Delete</button>
+                <td class="border border-gray-300 px-4 py-2"><input type="number" min="0" value="${combo.price}" data-index="${index}" class="priceInput border border-gray-300 p-1 w-full"></td>
+                <td class="border border-gray-300 px-4 py-2"><button data-index="${index}" class="deleteButton text-red-500">Delete</button>
                 </td>
             </tr>
         `
