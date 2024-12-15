@@ -1,23 +1,27 @@
-const variations = JSON.parse(localStorage.getItem("variations")) || {};  
-const products = JSON.parse(localStorage.getItem("products")) || [];    
-const combinations = JSON.parse(localStorage.getItem("combinations")) || []; 
+// Declare the variables that will store the data
+const variations = {};  
+const products = [];    
+const combinations = []; 
 
 // Load data from localStorage when the page loads
 document.addEventListener("DOMContentLoaded", () => {
-    if (localStorage.getItem("variations")) {
-        Object.assign(variations, JSON.parse(localStorage.getItem("variations")));
-    }
-    if (localStorage.getItem("products")) {
-        products.push(...JSON.parse(localStorage.getItem("products")));
-    }
-    if (localStorage.getItem("combinations")) {
-        combinations.push(...JSON.parse(localStorage.getItem("combinations")));
-    }
+    // Get data from localStorage or initialize as empty
+    const storedVariations = JSON.parse(localStorage.getItem("variations")) || {};
+    const storedProducts = JSON.parse(localStorage.getItem("products")) || [];
+    const storedCombinations = JSON.parse(localStorage.getItem("combinations")) || [];
+
+    // Correctly set loaded data
+    Object.assign(variations, storedVariations);
+    products.push(...storedProducts);
+    combinations.push(...storedCombinations);
+
+    // Render the loaded data
     renderVariations();
     renderProducts();
     renderCombinations();
 });
 
+// Event listener for creating a new variation
 document.getElementById('create-variation').addEventListener('click', () => {
     const name = document.getElementById('variation-name').value.trim();
     if (name && !variations[name]) {
@@ -28,6 +32,7 @@ document.getElementById('create-variation').addEventListener('click', () => {
     }
 });
 
+// Event listener for adding a new product
 document.getElementById('add-product').addEventListener('click', () => {
     const productName = document.getElementById('product-name').value.trim();
     if (productName && !products.includes(productName)) {
@@ -38,17 +43,20 @@ document.getElementById('add-product').addEventListener('click', () => {
     }
 });
 
+// Event listener for generating combinations
 document.getElementById('generate-combinations').addEventListener('click', () => {
     generateCombinations();
     renderCombinations();
     saveData();
 });
 
+// Event listener for searching combinations
 document.getElementById('search-combinations').addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     renderCombinations(query);
 });
 
+// Function to render variations
 function renderVariations() {
     const container = document.getElementById('variations-container');
     container.innerHTML = '';
@@ -76,6 +84,7 @@ function renderVariations() {
     }
 }
 
+// Function to render products
 function renderProducts() {
     const list = document.getElementById('products-list');
     list.innerHTML = products.map(product => `
@@ -86,6 +95,7 @@ function renderProducts() {
     `).join('');
 }
 
+// Function to generate combinations
 function generateCombinations() {
     combinations.length = 0;
     for (const product of products) {
@@ -101,6 +111,7 @@ function generateCombinations() {
     saveData();
 }
 
+// Function to render combinations
 function renderCombinations(query = '') {
     const list = document.getElementById('combinations-list');
     const filteredCombinations = combinations.filter(({ product, combo }) => 
@@ -120,17 +131,19 @@ function renderCombinations(query = '') {
     `).join('');
 }
 
+// Function to add a value to a variation
 function addVariationValue(name) {
     const input = document.getElementById(`${name}-input`);
     const value = input.value.trim();
     if (value && !variations[name].includes(value)) {
         variations[name].push(value);
         renderVariations();
-        input.value = '';
         saveData();
+        input.value = '';
     }
 }
 
+// Function to remove a value from a variation
 function removeVariationValue(name, value) {
     const index = variations[name].indexOf(value);
     if (index !== -1) {
@@ -140,6 +153,7 @@ function removeVariationValue(name, value) {
     }
 }
 
+// Function to delete a product
 function deleteProduct(productName) {
     const index = products.indexOf(productName);
     if (index !== -1) {
@@ -149,24 +163,29 @@ function deleteProduct(productName) {
     }
 }
 
+// Function to delete a variation
 function deleteVariation(name) {
     delete variations[name];
     renderVariations();
     saveData();
 }
 
+// Function to delete a combination
 function deleteCombination(index) {
     combinations.splice(index, 1);
     renderCombinations();
     saveData();
 }
 
+// Cartesian product function for generating combinations
 function cartesian(arrays) {
     return arrays.reduce((a, b) => a.flatMap(d => b.map(e => d.concat([e]))), [[]]);
 }
 
+// Save the data to localStorage
 function saveData() {
     localStorage.setItem("variations", JSON.stringify(variations));
     localStorage.setItem("products", JSON.stringify(products));
     localStorage.setItem("combinations", JSON.stringify(combinations));
+
 }
