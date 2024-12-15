@@ -1,164 +1,134 @@
-let combinations = JSON.parse(localStorage.getItem("combinations")) || [];
+const variations = JSON.parse(localStorage.getItem("variations")) || {};  
+const products = JSON.parse(localStorage.getItem("products")) || [];    
+const combinations = JSON.parse(localStorage.getItem("combinations")) || []; 
 
-document.getElementById("productCategory").addEventListener("change", (e) => {
-    const category = e.target.value;
-    const dynamicFields = document.getElementById("dynamicFields");
+document.addEventListener("DOMContentLoaded", () => {
+    renderVariations();
+    renderProducts();
+    renderCombinations();
+});
 
-    dynamicFields.innerHTML = "";
-
-    switch (category) {
-        case "food":
-            dynamicFields.innerHTML = `
-                <div>
-                    <label class="block text-gray-600 font-medium mb-1">Product Name</label>
-                    <input id="productName" type="text" required class="border border-gray-300 p-3 rounded-lg w-full shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" placeholder="Enter product name" />
-                </div>
-                <div>
-                    <label class="block text-gray-600 font-medium mb-1">Weight Range</label>
-                    <select id="weightRange" required class="border border-gray-300 p-3 rounded-lg w-full shadow-sm focus:ring focus:ring-blue-200 focus:outline-none">
-                        <option value="" disabled selected>Select weight range</option>
-                        <option value="50-500">50g to 500g</option>
-                        <option value="500-1000">500g to 1kg</option>
-                    </select>
-                </div>
-            `;
-            break;
-
-        case "clothes":
-            dynamicFields.innerHTML = `
-                <div>
-                    <label class="block text-gray-600 font-medium mb-1">Product Name</label>
-                    <input id="productName" type="text" required class="border border-gray-300 p-3 rounded-lg w-full shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" placeholder="Enter product name" />
-                </div>
-             
-            `;
-            break;
-
-        case "medicine":
-            dynamicFields.innerHTML = `
-                <div>
-                    <label class="block text-gray-600 font-medium mb-1">Product Name</label>
-                    <input id="productName" type="text" required class="border border-gray-300 p-3 rounded-lg w-full shadow-sm focus:ring focus:ring-blue-200 focus:outline-none" placeholder="Enter product name" />
-                </div>
-            
-            `;
-            break;
-
-        default:
-            dynamicFields.innerHTML = "";
+document.getElementById('create-variation').addEventListener('click', () => {
+    const name = document.getElementById('variation-name').value.trim();
+    if (name && !variations[name]) {
+        variations[name] = [];
+        renderVariations();
+        document.getElementById('variation-name').value = '';
+        saveData();
     }
 });
 
-document.getElementById("generateButton").addEventListener("click", () => {
-    const productCategory = document.getElementById("productCategory").value;
-    if (!productCategory) {
-        alert("Please select a product category!");
-        return;
+document.getElementById('add-product').addEventListener('click', () => {
+    const productName = document.getElementById('product-name').value.trim();
+    if (productName && !products.includes(productName)) {
+        products.push(productName);
+        renderProducts();
+        document.getElementById('product-name').value = '';
+        saveData();
     }
-
-    const productName = document.getElementById("productName").value;
-    if (!productName) {
-        alert("Please enter the product name!");
-        return;
-    }
-
-    if (productCategory === "food") {
-        const weightRange = document.getElementById("weightRange").value;
-        if (!weightRange) {
-            alert("Please select a weight range!");
-            return;
-        }
-        const [min, max] = weightRange.split("-").map(Number);
-        for (let weight = min; weight <= max; weight += 100) {
-            addCombination(productCategory, { productName, weight: `${weight}g` });
-        }
-    }
-
-    if (productCategory === "clothes") {
-        const sizes = ["S", "M", "L", "XL", "XXL"];
-        const colors = ["Yellow", "Red", "White", "Blue", "Green"];
-        for (const size of sizes) {
-            for (const color of colors) {
-                addCombination(productCategory, { productName, size, color });
-            }
-        }
-    }
-
-    if (productCategory === "medicine") {
-        const doses = ["5mg", "10mg", "50mg", "100mg"];
-        const colors = ["Yellow", "Red", "White", "Blue", "Green"];
-        for (const dose of doses) {
-            for (const color of colors) {
-                addCombination(productCategory, { productName, dose, });
-            }
-        }
-    }
-
-    updateTable();
 });
 
-function addCombination(category, details) {
-    const combination = {
-        category,
-        ...details,
-        stock: 0,
-        price: 0,
-        discountedPrice: 0,
-    };
-    combinations.push(combination);
+document.getElementById('generate-combinations').addEventListener('click', () => {
+    generateCombinations();
+    renderCombinations();
+    saveData();
+});
+
+document.getElementById('search-combinations').addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    renderCombinations(query);
+});
+
+function renderVariations() {
+    const container = document.getElementById('variations-container');
+    container.innerHTML = '';
+    for (const [name, values] of Object.entries(variations)) {
+        const variationBox = document.createElement('div');
+        variationBox.className = "p-4 border rounded bg-gray-100";
+        variationBox.innerHTML = `
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold">${name}</h3>
+                <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="deleteVariation('${name}')">&times;</button>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" placeholder="Add ${name}" class="border p-2 rounded w-full" id="${name}-input">
+                <button class="bg-blue-500 text-white px-4 py-2 rounded" onclick="addVariationValue('${name}')">Add</button>
+            </div>
+            <ul class="mt-2" id="${name}-list">
+                ${values.map(value => `<li class="mt-1">${value}</li>`).join('')}
+            </ul>
+        `;
+        container.appendChild(variationBox);
+    }
+}
+
+function renderProducts() {
+    const list = document.getElementById('products-list');
+    list.innerHTML = products.map(product => `<li>${product}</li>`).join('');
+}
+
+function generateCombinations() {
+    combinations.length = 0;
+    for (const product of products) {
+        const keys = Object.keys(variations);
+        const values = Object.values(variations);
+        if (keys.length > 0 && values.every(arr => arr.length)) {
+            const allCombinations = cartesian(values);
+            allCombinations.forEach(combo => {
+                combinations.push({ product, combo });
+            });
+        }
+    }
+}
+
+function renderCombinations(query = '') {
+    const list = document.getElementById('combinations-list');
+    const filteredCombinations = combinations.filter(({ product, combo }) => 
+        product.toLowerCase().includes(query) ||
+        combo.some(value => value.toLowerCase().includes(query))
+    );
+    list.innerHTML = filteredCombinations.map(({ product, combo }, index) => `
+        <tr>
+            <td class="p-2">${product} - ${combo.join(', ')}</td>
+            <td class="p-2"><input type="number" class="border p-2 rounded w-full" value="0"></td>
+            <td class="p-2"><input type="number" class="border p-2 rounded w-full" value="0"></td>
+            <td class="p-2"><input type="number" class="border p-2 rounded w-full" value="0"></td>
+            <td class="p-2">
+                <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="deleteCombination(${index})">Delete</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function addVariationValue(name) {
+    const input = document.getElementById(`${name}-input`);
+    const value = input.value.trim();
+    if (value && !variations[name].includes(value)) {
+        variations[name].push(value);
+        renderVariations();
+        input.value = '';
+        saveData();
+    }
+}
+
+function deleteVariation(name) {
+    delete variations[name];
+    renderVariations();
+    saveData();
+}
+
+function deleteCombination(index) {
+    combinations.splice(index, 1);
+    renderCombinations();
+    saveData();
+}
+
+function cartesian(arrays) {
+    return arrays.reduce((a, b) => a.flatMap(d => b.map(e => d.concat([e]))), [[]]);
+}
+
+function saveData() {
+    localStorage.setItem("variations", JSON.stringify(variations));
+    localStorage.setItem("products", JSON.stringify(products));
     localStorage.setItem("combinations", JSON.stringify(combinations));
 }
-
-function updateTable() {
-    const tableBody = document.getElementById("combinationsTable");
-    tableBody.innerHTML = combinations
-        .map(
-            (combo, index) => `
-            <tr>
-                <td class="border border-gray-300 px-4 py-2">${combo.category} - ${combo.productName || "Unnamed"}</td>
-                <td class="border border-gray-300 px-4 py-2">${combo.weight || combo.size || combo.dose || ""}</td>
-                <td class="border border-gray-300 px-4 py-2">${combo.color || ""}</td>
-                <td class="border border-gray-300 px-4 py-2"><input type="number" min="0" value="${combo.stock}" data-index="${index}" class="stockInput border border-gray-300 p-1 w-full"></td>
-                <td class="border border-gray-300 px-4 py-2"><input type="number" min="0" value="${combo.price}" data-index="${index}" class="priceInput border border-gray-300 p-1 w-full"></td>
-                <td class="border border-gray-300 px-4 py-2"><input type="number" min="0" value="${combo.price}" data-index="${index}" class="priceInput border border-gray-300 p-1 w-full"></td>
-                <td class="border border-gray-300 px-4 py-2"><button data-index="${index}" class="deleteButton text-red-500">Delete</button>
-                </td>
-            </tr>
-        `
-        )
-        .join("");
-
-    attachTableListeners();
-}
-
-function attachTableListeners() {
-    document.querySelectorAll(".stockInput").forEach((input) => {
-        input.addEventListener("input", (e) => {
-            const index = e.target.dataset.index;
-            combinations[index].stock = parseInt(e.target.value, 10) || 0;
-            localStorage.setItem("combinations", JSON.stringify(combinations));
-        });
-    });
-
-    document.querySelectorAll(".priceInput").forEach((input) => {
-        input.addEventListener("input", (e) => {
-            const index = e.target.dataset.index;
-            combinations[index].price = parseFloat(e.target.value) || 0;
-            combinations[index].discountedPrice = combinations[index].price * 0.9; 
-            localStorage.setItem("combinations", JSON.stringify(combinations));
-            updateTable();
-        });
-    });
-
-    document.querySelectorAll(".deleteButton").forEach((button) => {
-        button.addEventListener("click", (e) => {
-            const index = e.target.dataset.index;
-            combinations.splice(index, 1);
-            localStorage.setItem("combinations", JSON.stringify(combinations));
-            updateTable();
-        });
-    });
-}
-
-// Initialize table on page load
-updateTable();

@@ -3,63 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Variations Management</title>
-    <script src="index.js" defer></script>
+    <title>Product Variation Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="index.js" defer></script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center">
-    <div class="max-w-5xl w-full bg-white p-10 rounded-lg shadow-2xl">
-        <h1 class="text-4xl font-extrabold text-gray-800 mb-10 text-center">Product Variations Management</h1>
+<body class="bg-gray-100 p-8">
 
-        <div class="mb-10">
-            <h2 class="text-2xl font-bold text-gray-700 mb-6">Choose Your Product</h2>
-            <form id="productForm" class="space-y-6">
-                <div>
-                    <label class="block text-gray-600 font-medium mb-2">Product Category</label>
-                    <select id="productCategory" required class="border border-gray-300 p-3 rounded-lg w-full shadow-sm focus:ring focus:ring-blue-200">
-                        <option value="" disabled selected>Select category</option>
-                        <option value="food">Food</option>
-                        <option value="clothes">Clothes</option>
-                        <option value="medicine">Medicine</option>
-                    </select>
-                </div>
-                <div id="dynamicFields"></div>
-                <button type="button" id="generateButton" class="bg-green-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-green-700 transition">Generate</button>
-            </form>
-        </div>
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-4">Product Variation Manager</h1>
 
-        <div class="mb-8">
-            <input id="searchInput" type="text" placeholder="Search combinations..." class="border border-gray-300 p-3 rounded-lg w-full shadow-sm focus:ring focus:ring-blue-200">
+    <!-- Add Variation Names -->
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold mb-2">Add Variation</h2>
+        <div class="flex gap-2">
+            <input type="text" id="variation-name" class="border p-2 rounded w-full" placeholder="Enter Variation Name">
+            <button id="create-variation" class="bg-blue-500 text-white px-4 py-2 rounded">Create Variation</button>
         </div>
-
-        <div>
-            <h2 class="text-2xl font-bold text-gray-700 mb-6">Generated Combinations</h2>
-            <table class="table-auto w-full border-collapse border border-gray-300 shadow-lg rounded-lg">
-                <thead>
-                    <tr class="bg-blue-100 text-left">
-                        <th class="border border-gray-300 px-4 py-2">Combination</th>
-                        <th class="border border-gray-300 px-4 py-2">Size</th>
-                        <th class="border border-gray-300 px-4 py-2">Color</th>
-                        <th class="border border-gray-300 px-4 py-2">Stock</th>
-                        <th class="border border-gray-300 px-4 py-2">Price</th>
-                        <th class="border border-gray-300 px-4 py-2">Discounted Price</th>
-                        <th class="border border-gray-300 px-4 py-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="combinationsTable" class="text-gray-700 text-center"></tbody>
-            </table>
-        </div>
+        <div id="variations-container" class="mt-4 space-y-4"></div>
     </div>
 
-    <script>
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const searchValue = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#combinationsTable tr');
-            rows.forEach(row => {
-                const combinationText = row.textContent.toLowerCase();
-                row.style.display = combinationText.includes(searchValue) ? '' : 'none';
-            });
-        });
-    </script>
+    <!-- Add Products -->
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold mb-2">Add Product</h2>
+        <input type="text" id="product-name" class="border p-2 rounded w-full mb-2" placeholder="Enter Product Name">
+        <button id="add-product" class="bg-green-500 text-white px-4 py-2 rounded">Add Product</button>
+        <ul id="products-list" class="mt-4"></ul>
+    </div>
+
+    <!-- Generate Combinations -->
+    <button id="generate-combinations" class="bg-yellow-500 text-white px-4 py-2 rounded mb-4">Generate Combinations</button>
+
+    <!-- Filter/Search -->
+    <input type="text" id="search-combinations" class="border p-2 rounded w-full mb-4" placeholder="Search Combinations">
+
+    <!-- Combinations List -->
+    <table class="table-auto w-full bg-gray-50 rounded">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="p-2">Combination</th>
+                <th class="p-2">Stock</th>
+                <th class="p-2">Price</th>
+                <th class="p-2">Discounted Price</th>
+                <th class="p-2">Action</th>
+            </tr>
+        </thead>
+        <tbody id="combinations-list"></tbody>
+    </table>
+</div>
+
 </body>
 </html>
